@@ -3,11 +3,51 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>Švieslentė</title>
+        <style>
+            html,
+            body {
+                overflow: hidden;
+                height: 100%;
+                margin: 0;
+            }
+            #info {
+                height: 100%;
+                text-align: center;
+                font-size: 3.5vw;
+                background-color: #baed91;
+            }
+            .line {
+                width: 100%;
+            }
+            .line:first-child {
+                background-color: #6bd374;
+            }
+            .column {
+                width: 25%;
+                float: left;
+            }
+        </style>
     </head>
     <body>
-        <div id="info"></div>
+        <div id="info">
+            <div class="column" id="registracija"></div>
+            <div class="column" id="isdavimas"></div>
+            <div class="column" id="pratesimas"></div>
+            <div class="column" id="uzsakymas"></div>
+        </div>
         <script src="scripts/init.js"></script>
         <script>
+            let moved = Date.now();
+            document.onmousemove = e => {
+                moved = Date.now();
+                document.getElementsByTagName('body')[0].style.cursor = 'auto';
+            };
+            const fields = {
+                registracija: 'registracija',
+                isdavimas: 'išdavimas',
+                pratesimas: 'pratęsimas',
+                uzsakymas: 'užsakymas',
+            };
             function show() {
                 loadStorage();
                 if (data.length == 0) {
@@ -15,18 +55,39 @@
                         'Nepavyko užkrauti duomenų';
                     return;
                 }
-                let sorted = data
-                    .sort((a, b) => b.time - a.time)
-                    .sort((a, b) => (a.subject > b.subject ? 1 : -1))
-                    .map(e => e.subject + ' ' + (e.id + '').padStart(3, '0'));
-                document.getElementById('info').innerHTML = sorted.join(
-                    '<br />'
-                );
+                let sorted = data.sort((a, b) => b.time - a.time);
+                Object.keys(fields).forEach(key => {
+                    let list = sorted
+                        .filter(e => e.subject === key)
+                        .map(
+                            e =>
+                                `<div class="line">${(e.id + '').padStart(
+                                    3,
+                                    0
+                                )} ${fields[e.subject]}</div>`
+                        );
+                    list = list.length != 0 ? list : ['&nbsp;'];
+                    document.getElementById(key).innerHTML = list.join(' ');
+                });
+                /*.sort((a, b) => (a.subject > b.subject ? 1 : -1))
+                    .map(
+                        e =>
+                            `<div class="line">${(e.id + '').padStart(3, 0)} ${
+                                fields[e.subject]
+                            }</div>`
+                    );
+                document.getElementById('info').innerHTML = sorted.join('');*/
             }
             show();
             try {
                 setInterval(show, 5000);
             } catch {}
+            setInterval(() => {
+                if (moved + 2000 < Date.now()) {
+                    document.getElementsByTagName('body')[0].style.cursor =
+                        'none';
+                }
+            }, 100);
         </script>
     </body>
 </html>
