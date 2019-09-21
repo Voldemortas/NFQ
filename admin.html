@@ -44,6 +44,8 @@
                     time: Date.now(),
                 });
                 localStorage.setItem('clients', JSON.stringify(data));
+                document.getElementById('message').innerHTML =
+                    'Užregistruota sėkmingai';
                 update();
             }
             function update() {
@@ -89,7 +91,7 @@
             }
             function wrong() {
                 document.getElementById('message').innerHTML =
-                    'Duomenų nepavyko užkrauti';
+                    'Nepavyko nuskaityti lankytojų duomenų';
                 update();
             }
             function remove() {
