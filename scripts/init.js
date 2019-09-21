@@ -11,7 +11,7 @@ let data = [];
 function loadStorage() {
     storage = localStorage.getItem(name);
     if (storage != null) {
-        data = JSON.parse(storage);
+        data = JSON.parse(storage).sort((a, b) => b.time - a.time);
     } else {
         data = [];
     }
