@@ -22,29 +22,29 @@
                                       (e.id + '').padStart(3, 0) +
                                       ` ${e.time} ${e.subject}`
                               )
-                              .join('<br />')
+                              .join('<br />');
             }
             async function load() {
-                let input = await fetch('backend/clients.js')
-                let data = await input.json()
-                localStorage = data
+                let input = await fetch('backend/clients.js');
+                data = await input.json();
+                localStorage = data;
                 document.getElementById('message').innerHTML =
-                    'Duomenys sėkmingai užkrauti'
-                update()
+                    'Duomenys sėkmingai užkrauti';
+                update();
             }
             function wrong() {
                 document.getElementById('message').innerHTML =
-                    'Duomenų nepavyko užkrauti'
-                update()
+                    'Duomenų nepavyko užkrauti';
+                update();
             }
             function remove() {
-                localStorage.removeItem(name)
+                localStorage.removeItem(name);
                 document.getElementById('message').innerHTML =
-                    'Duomenys sėkmingai ištrinti'
-                update()
+                    'Duomenys sėkmingai ištrinti';
+                update();
             }
-            init()
-            update()
+            init();
+            update();
         </script>
     </body>
 </html>

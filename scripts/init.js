@@ -1,15 +1,16 @@
-'use strict'
+'use strict';
 /**
  * localStorage item pavadinimas
  */
-const name = 'clients'
-let storage = localStorage.getItem(name)
+const name = 'clients';
+let storage = {};
 /**
  * @type {Array.<{id: Number, subject: String, time: Number}>}
  */
-let data = []
+let data = [];
 function init() {
+    storage = localStorage.getItem(name);
     if (storage != null) {
-        data = JSON.parse(storage)
+        data = JSON.parse(storage);
     }
 }
