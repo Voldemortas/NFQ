@@ -25,7 +25,7 @@
                               .join('<br />');
             }
             async function load() {
-                let input = await fetch('backend/clients.js');
+                let input = await fetch('backend/clients.json');
                 data = await input.json();
                 localStorage = data;
                 document.getElementById('message').innerHTML =
