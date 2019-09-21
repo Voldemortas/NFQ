@@ -8,6 +8,13 @@ let storage = {};
  * @type {Array.<{id: Number, subject: String, time: Number}>}
  */
 let data = [];
+
+const fields = {
+    registracija: 'Registracija',
+    isdavimas: 'Išdavimas',
+    pratesimas: 'Pratęsimas',
+    uzsakymas: 'Užsakymas',
+};
 function loadStorage() {
     storage = localStorage.getItem(name);
     if (storage != null) {
