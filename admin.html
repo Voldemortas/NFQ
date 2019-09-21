@@ -9,21 +9,9 @@
         <button onclick="remove()">Ištrinti duomenis</button>
         <div id="message"></div>
         <div id="data"></div>
+        <script src="scripts/init.js"></script>
         <script>
-            'use strict'
-            /**
-             * localStorage item pavadinimas
-             */
-            const name = 'clients'
-            let storage = localStorage.getItem(name)
-            /**
-             * @type {Array.<{id: Number, subject: String, time: Number}>}
-             */
-            let data = []
-            function init() {
-                if (storage != null) {
-                    data = JSON.parse(storage)
-                }
+            function update() {
                 document.getElementById('data').innerHTML =
                     data.length == 0
                         ? 'Duomenų nėra'
@@ -42,19 +30,21 @@
                 localStorage = data
                 document.getElementById('message').innerHTML =
                     'Duomenys sėkmingai užkrauti'
-                init()
+                update()
             }
             function wrong() {
                 document.getElementById('message').innerHTML =
                     'Duomenų nepavyko užkrauti'
-                init()
+                update()
             }
             function remove() {
                 localStorage.removeItem(name)
                 document.getElementById('message').innerHTML =
                     'Duomenys sėkmingai ištrinti'
-                init()
+                update()
             }
+            init()
+            update()
         </script>
     </body>
 </html>
