@@ -5,25 +5,79 @@
         <title>Administravimas</title>
     </head>
     <body>
-        <button onclick="load().catch(wrong)">Užkrauti duomenis</button>
-        <button onclick="remove()">Ištrinti duomenis</button>
-        <div id="message"></div>
-        <div id="data"></div>
+        <div id="filters"></div>
+        <hr />
+        <div>
+            <button onclick="load().catch(wrong)">Užkrauti duomenis</button>
+            <button onclick="remove()">Ištrinti duomenis</button>
+            <div id="message"></div>
+            <div>
+                Esami duomenys
+                <table id="data" border="1"></table>
+            </div>
+        </div>
         <script src="scripts/init.js"></script>
         <script>
-            function update() {
+            Object.keys(fields).forEach(key => {
+                document.getElementById(
+                    'filters'
+                ).innerHTML += `<label><input type="radio" name="filter" value="${key}" /> ${fields[key]}</label><br />`;
+            });
+            document.getElementById(
+                'filters'
+            ).innerHTML += `<button onclick="submit()">Registruoti klientą</button>`;
+            function submit() {
+                let subject = null;
+                document.getElementsByName('filter').forEach(e => {
+                    if (e.checked) {
+                        subject = e.value;
+                        e.checked = false;
+                    }
+                });
                 loadStorage();
+                let last = data
+                    .sort((a, b) => b.time - a.time)
+                    .map(e => e.id)[0];
+                data.push({
+                    id: last + 1 === 1000 ? 1 : last + 1,
+                    subject: subject,
+                    time: Date.now(),
+                });
+                localStorage.setItem('clients', JSON.stringify(data));
+                update();
+            }
+            function update() {
+                ////////////////////////////////////////// vieta skirta sužinoti laiko zoną ir LT laiko skirtumą
+                let timezone = new Date()
+                    .toString()
+                    .split('GMT')[1]
+                    .split(' (')[0];
+                let aH =
+                    (timezone[1] + timezone[2]) * ((timezone[0] + '1') * 1);
+                let aM =
+                    (timezone[3] + timezone[4]) * ((timezone[0] + '1') * 1);
+                let additional = (aH * 60 + aM) * 1000 * 60;
+                /////////////////////////////////////////// laiko zonos skaičiavimo pabaiga
+                loadStorage();
+                data.sort((a, b) => b.time - a.time);
                 document.getElementById('data').innerHTML =
                     data.length == 0
-                        ? 'Duomenų nėra'
-                        : 'Esami duomenys: <br />' +
+                        ? `<tr><th>Duomenų nėra</th></tr>`
+                        : `<tr><th>ID</th><th>Užklausa</th><th>Laikas</th><th>Aptarnauta</th></tr>` +
                           data
                               .map(
                                   e =>
-                                      (e.id + '').padStart(3, 0) +
-                                      ` ${e.time} ${e.subject}`
+                                      `<tr><td>${e.id}</td><td>${
+                                          fields[e.subject]
+                                      }</td><td>${new Date(e.time + additional)
+                                          .toISOString()
+                                          .split('.')[0]
+                                          .split('T')
+                                          .join('<br />')}</td><td>${
+                                          e.served ? 'TAIP' : 'NE'
+                                      }</td>`
                               )
-                              .join('<br />');
+                              .join('');
             }
             async function load() {
                 let input = await fetch('backend/clients.json');
