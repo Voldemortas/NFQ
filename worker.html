@@ -9,20 +9,10 @@
         <div id="clients"></div>
         <script src="scripts/init.js"></script>
         <script>
-            const fields = [
-                ['registracija', 'registracija'],
-                ['isdavimas', 'išdavimas'],
-                ['pratesimas', 'pratęsimas'],
-                ['uzsakymas', 'užsakymas'],
-            ].sort((a, b) => (a > b ? 1 : -1));
-            document.getElementById('filters').innerHTML = fields
+            document.getElementById('filters').innerHTML = Object.keys(fields)
                 .map(
                     e =>
-                        `<label>${
-                            e[1]
-                        } <input type="checkbox" name="filters" value="${
-                            e[0]
-                        }" onchange="show()" /></label>`
+                        `<label>${fields[e]} <input type="checkbox" name="filters" value="${e}" onchange="show()" /></label>`
                 )
                 .join(' ');
             function show() {
@@ -36,7 +26,7 @@
                     .sort((a, b) => (a.subject > b.subject ? 1 : -1))
                     .map(
                         e =>
-                            e.subject +
+                            fields[e.subject] +
                             ' ' +
                             (e.id + '').padStart(3, '0') +
                             " <button onclick='serve(" +
