@@ -9,21 +9,22 @@
         <script src="scripts/init.js"></script>
         <script>
             function show() {
-                if (data == null) {
+                loadStorage();
+                if (data.length == 0) {
                     document.getElementById('info').innerHTML =
                         'Nepavyko užkrauti duomenų';
                     return;
                 }
                 let sorted = data
-                    .sort((a, b) => a.id - b.id)
+                    .sort((a, b) => b.time - a.time)
                     .sort((a, b) => (a.subject > b.subject ? 1 : -1))
-                    .map(e => e.sorted + ' ' + (e.id + '').padStart(3, '0'));
+                    .map(e => e.subject + ' ' + (e.id + '').padStart(3, '0'));
                 document.getElementById('info').innerHTML = sorted.join(
                     '<br />'
                 );
             }
+            show();
             try {
-                init();
                 setInterval(show, 5000);
             } catch {}
         </script>

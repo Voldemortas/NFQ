@@ -12,10 +12,11 @@
         <script src="scripts/init.js"></script>
         <script>
             function update() {
+                loadStorage();
                 document.getElementById('data').innerHTML =
                     data.length == 0
                         ? 'Duomenų nėra'
-                        : 'Esami duomenys: ' +
+                        : 'Esami duomenys: <br />' +
                           data
                               .map(
                                   e =>
@@ -27,7 +28,7 @@
             async function load() {
                 let input = await fetch('backend/clients.json');
                 data = await input.json();
-                localStorage = data;
+                localStorage.setItem('clients', JSON.stringify(data));
                 document.getElementById('message').innerHTML =
                     'Duomenys sėkmingai užkrauti';
                 update();
@@ -43,7 +44,6 @@
                     'Duomenys sėkmingai ištrinti';
                 update();
             }
-            init();
             update();
         </script>
     </body>

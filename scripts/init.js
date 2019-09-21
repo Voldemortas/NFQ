@@ -8,9 +8,11 @@ let storage = {};
  * @type {Array.<{id: Number, subject: String, time: Number}>}
  */
 let data = [];
-function init() {
+function loadStorage() {
     storage = localStorage.getItem(name);
     if (storage != null) {
         data = JSON.parse(storage);
+    } else {
+        data = [];
     }
 }
