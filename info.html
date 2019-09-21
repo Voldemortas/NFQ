@@ -4,5 +4,28 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>Švieslentė</title>
     </head>
-    <body></body>
+    <body>
+        <div id="info"></div>
+        <script src="scripts/init.js"></script>
+        <script>
+            function show() {
+                if (data == null) {
+                    document.getElementById('info').innerHTML =
+                        'Nepavyko užkrauti duomenų'
+                    return
+                }
+                let sorted = data
+                    .sort((a, b) => a.id - b.id)
+                    .sort((a, b) => (a.subject > b.subject ? 1 : -1))
+                    .map(e => e.sorted + ' ' + (e.id + '').padStart(3, 0))
+                document.getElementById('info').innerHTML = sorted.join(
+                    '<br />'
+                )
+            }
+            try {
+                init()
+                setInterval(show, 5000)
+            } catch {}
+        </script>
+    </body>
 </html>
