@@ -14,7 +14,6 @@ let data = [];
  * @property {string} subject      reason of visit
  * @property {number} register     time of registration
  * @property {string} unique       unique id
- * @property {number} postponed    next visit time
  * @property {number} served       time when client was served
  */
 class Client {
@@ -24,15 +23,13 @@ class Client {
      * @param {string} subject      reason of visit
      * @param {number} register     time of registration
      * @param {string} unique       unique id
-     * @param {number} postponed    next visit time
      * @param {number} served       time when client was served
      */
-    constructor(id, subject, register, unique = '', postponed = 0, served = 0) {
+    constructor(id, subject, register, unique = '', served = 0) {
         this.id = id;
         this.subject = subject;
         this.register = register;
         this.unique = unique !== '' ? unique : Client.generate();
-        this.posponed = postponed;
         this.served = served;
     }
 

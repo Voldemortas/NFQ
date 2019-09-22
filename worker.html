@@ -22,11 +22,7 @@
                     .map(e => e.value);
                 let sorted = data
                     .filter(e => active.includes(e.subject) && e.served === 0)
-                    .sort(
-                        (a, b) =>
-                            Math.max(b.register, b.posponed) -
-                            Math.max(a.register, a.posponed)
-                    )
+                    .sort((a, b) => b.register - a.register)
                     .sort((a, b) => (a.subject > b.subject ? 1 : -1))
                     .map(
                         e =>

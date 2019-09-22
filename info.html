@@ -49,11 +49,7 @@
                         'Nepavyko užkrauti duomenų';
                     return;
                 }
-                let sorted = data.sort(
-                    (a, b) =>
-                        Math.max(b.register, b.posponed) -
-                        Math.max(a.register, a.posponed)
-                );
+                let sorted = data.sort((a, b) => b.register - a.register);
                 Object.keys(fields).forEach(key => {
                     let list = sorted
                         .filter(e => e.subject === key)
@@ -67,14 +63,6 @@
                     list = list.length != 0 ? list : ['&nbsp;'];
                     document.getElementById(key).innerHTML = list.join(' ');
                 });
-                /*.sort((a, b) => (a.subject > b.subject ? 1 : -1))
-                    .map(
-                        e =>
-                            `<div class="line">${(e.id + '').padStart(3, 0)} ${
-                                fields[e.subject]
-                            }</div>`
-                    );
-                document.getElementById('info').innerHTML = sorted.join('');*/
             }
             show();
             try {

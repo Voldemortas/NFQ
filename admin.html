@@ -66,11 +66,7 @@
             function update() {
                 let additional = timezone();
                 loadStorage();
-                data.sort(
-                    (a, b) =>
-                        Math.max(b.register, b.posponed) -
-                        Math.max(a.register, a.posponed)
-                );
+                data.sort((a, b) => b.register - a.register);
                 document.getElementById('data').innerHTML =
                     data.length == 0
                         ? `<tr><th>Duomenų nėra</th></tr>`
@@ -100,10 +96,12 @@
                 let input = await fetch('backend/clients.json');
                 /**
                  *
-                 * @type {Array.<{id: {number}, subject: {string}, time:  {number}}>}
+                 * @type {Client[]}
                  */
                 let json = await input.json();
-                data = json.map(e => new Client(e.id, e.subject, e.time, e.id));
+                data = json.map(
+                    e => new Client(e.id, e.subject, e.register, e.unique)
+                );
                 localStorage.setItem('clients', JSON.stringify(data));
                 document.getElementById('message').innerHTML =
                     'Duomenys sėkmingai užkrauti';
