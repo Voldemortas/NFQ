@@ -49,7 +49,11 @@
                         'Nepavyko užkrauti duomenų';
                     return;
                 }
-                let sorted = data.sort((a, b) => b.time - a.time);
+                let sorted = data.sort(
+                    (a, b) =>
+                        Math.max(b.register, b.posponed) -
+                        Math.max(a.register, a.posponed)
+                );
                 Object.keys(fields).forEach(key => {
                     let list = sorted
                         .filter(e => e.subject === key)

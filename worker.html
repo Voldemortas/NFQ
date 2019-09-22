@@ -21,8 +21,12 @@
                     .filter(e => e.checked)
                     .map(e => e.value);
                 let sorted = data
-                    .filter(e => active.includes(e.subject))
-                    .sort((a, b) => b.time - a.time)
+                    .filter(e => active.includes(e.subject) && e.served === 0)
+                    .sort(
+                        (a, b) =>
+                            Math.max(b.register, b.posponed) -
+                            Math.max(a.register, a.posponed)
+                    )
                     .sort((a, b) => (a.subject > b.subject ? 1 : -1))
                     .map(
                         e =>
@@ -30,23 +34,20 @@
                             ' ' +
                             (e.id + '').padStart(3, '0') +
                             " <button onclick='serve(" +
-                            JSON.stringify(e) +
+                            e.unique +
                             ")'>Aptarnauta</button>"
                     );
                 document.getElementById('clients').innerHTML = sorted.join(
                     '<br />'
                 );
             }
-            function serve(obj) {
-                let predicate = (e, obj) =>
-                    e.id === obj.id &&
-                    e.subject === obj.subject &&
-                    e.time === obj.time;
-                let exists = data.filter(e => predicate(e, obj));
-                if (exists.length == 0) {
+            function serve(unique) {
+                let predicate = e => e.unique === unique;
+                let exists = data.findIndex(predicate);
+                if (exists === -1) {
                     return;
                 }
-                data = data.filter(e => !predicate(e, obj));
+                data[exists].served = Date.now();
                 localStorage.setItem(name, JSON.stringify(data));
                 loadStorage();
                 show();
