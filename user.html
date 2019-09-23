@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Vartotojo puslapis</title>
+        <style></style>
+    </head>
+    <body>
+        <div>
+            <div id="input">
+                <input
+                    type="text"
+                    id="code"
+                    placeholder="Įveskite unikalų kodą"
+                    autofocus
+                />
+                <button onclick="submit()">Ieškoti</button> <br />
+            </div>
+            <div id="message"></div>
+            <div id="content">
+                <div id="user"></div>
+                <div id="time"></div>
+                <div id="postpone"></div>
+            </div>
+        </div>
+        <script src="scripts/init.js"></script>
+        <script>
+            /**
+             *
+             * @type Client
+             */
+            let client = null;
+            loadStorage();
+            function submit() {
+                let code = document.getElementById('code').value;
+                let user = data.findIndex(e => e.unique === code);
+                if (user === -1) {
+                    document.getElementById('message').innerHTML =
+                        'Toks kodas nėra užregistruotas';
+                    return;
+                }
+                client = data[user];
+                document.getElementById('input').setAttribute('hidden', 'true');
+                // prettier-ignore
+                document.getElementById('user').innerHTML =
+                    `Jūsų eilės numeris: ${client.id} <br /> Užklausa: ${fields[client.subject]}`;
+                showContent();
+            }
+            function showContent() {
+                loadStorage();
+                if (client === null) {
+                    return;
+                }
+                let filtered = data
+                    .filter(e => e.subject === client.subject)
+                    .sort((a, b) => b.register - a.register);
+                let user = filtered.findIndex(e => e.unique === client.unique);
+                if (user === 0) {
+                    // prettier-ignore
+                    //oh boy reikės daug kur taip padaryt :D
+                    document.getElementById('postpone').innerHTML =
+                        `Pavėlinti registracijos negalima`;
+                } else {
+                    // prettier-ignore
+                    document.getElementById('postpone').innerHTML =
+                        `<button onclick="postpone()">Pavėlinti registraciją</button>`;
+                }
+                let current = filtered
+                    .filter(e => e.served === 0)
+                    .sort((a, b) => a.register - b.register)[0];
+                if (current.unique === client.unique) {
+                    document.getElementById('time').innerHTML =
+                        'JŪSŲ LAIKAS EITI!';
+                    return;
+                }
+                let served = filtered.filter(e => e.served !== 0);
+                let unserved = filtered.filter(
+                    e => e.served === 0 && e.register <= client.register
+                );
+                let average =
+                    served.reduce((a, b) => a + b.served - b.register, 0) /
+                    Math.max(served.length, 1);
+                console.log(average, unserved);
+                let waiting =
+                    unserved.length * average +
+                    Math.min(average - (Date.now() - unserved[0].register), 0);
+                document.getElementById('time').innerHTML =
+                    'Apytikslis laukimo laikas: ' + formatTime(waiting);
+            }
+            function formatTime(miliseconds) {
+                miliseconds = Math.max(miliseconds, 0);
+                let hours = Math.floor(miliseconds / 1000 / 60 / 60);
+                if (hours > 24) {
+                    return '1d';
+                }
+                hours += '';
+                miliseconds -= hours * 1000 * 60 * 60;
+                let minutes = Math.floor(miliseconds / 1000 / 60) + '';
+                miliseconds -= minutes * 1000 * 60;
+                let seconds = Math.floor(miliseconds / 1000) + '';
+                return (
+                    hours.padStart(2, '0') +
+                    ':' +
+                    minutes.padStart(2, '0') +
+                    ':' +
+                    seconds.padStart(2, '0')
+                );
+            }
+            function postpone() {
+                let filtered = data
+                    .filter(e => e.subject === client.subject && e.served === 0)
+                    .sort((a, b) => b.register - a.register);
+                let user = filtered.findIndex(e => e.unique === client.unique);
+                if (user === 0) {
+                    // prettier-ignore
+                    //oh boy reikės daug kur taip padaryt :D
+                    document.getElementById('postpone').innerHTML =
+                        `Pavėlinti registracijos negalima`;
+                    return;
+                }
+                let time = client.register;
+                let next = filtered[user - 1];
+                let nextId = data.findIndex(e => e.unique === next.unique);
+                let userId = data.findIndex(e => e.unique === client.unique);
+                data[userId].register = data[nextId].register;
+                data[nextId].register = time;
+                localStorage.setItem('clients', JSON.stringify(data));
+                document.getElementById('message').innerHTML =
+                    'Laikas pavėlintas';
+                showContent();
+            }
+            setInterval(showContent, 5000);
+        </script>
+    </body>
+</html>
