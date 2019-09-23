@@ -38,17 +38,17 @@
                     return new Calendar(day.year, day.month);
                 }
 
-                makeTable() {
+                makeTable(divId = 'calendar') {
                     let text = `<table>
                             <tr>
                                 <td colspan="7" id="year">${this.year}</td>
                             </tr>
                             <tr>
-                                <td><</td>
+                                <td><button onclick="previousMonth()"><</button></td>
                                 <td colspan="5" id="month">${
                                     Calendar.monthNames[this.month]
                                 }</td>
-                                <td>></td>
+                                <td><button onclick="nextMonth()">></button></td>
                             </tr>`;
                     text += Calendar.dayNames.reduce(
                         (a, b) => `${a}<td>${b}</td>`,
@@ -74,7 +74,7 @@
                         }
                         text += `<tr>${temp}</tr>`;
                     }
-                    return text;
+                    document.getElementById(divId).innerHTML = text;
                 }
                 /**
                  * Mėnesio pavadinimai
@@ -161,10 +161,20 @@
                     now.getDate()
                 );
             }
+            function nextMonth() {
+                thisMonth = Calendar.fromDay(
+                    new Day(thisMonth.year, thisMonth.month + 1, 1)
+                );
+                thisMonth.makeTable();
+            }
+            function previousMonth() {
+                thisMonth = Calendar.fromDay(
+                    new Day(thisMonth.year, thisMonth.month, 0)
+                );
+                thisMonth.makeTable();
+            }
             let thisMonth = Calendar.fromDay(rightNow());
-            document.getElementById(
-                'calendar'
-            ).innerHTML = thisMonth.makeTable();
+            thisMonth.makeTable();
         </script>
     </body>
 </html>
