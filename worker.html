@@ -12,18 +12,18 @@
         <div id="filters"></div>
         <div id="clients"></div>
         <script src="scripts/functions.js"></script>
-        <script src="scripts/Client.js.js"></script>
+        <script src="scripts/Client.js"></script>
         <script>
-            document.getElementById('filters').innerHTML = Object.keys(fields)
+            document.getElementById('filters').innerHTML = Object.keys(Fields)
                 .map(
                     e =>
-                        `<label>${fields[e]}
+                        `<label>${Fields[e]}
                             <input type="checkbox" name="filters" value="${e}" onchange="show()" />
                          </label>`
                 )
                 .join(' ');
-            function show() {
-                loadStorage();
+            async function show() {
+                await loadData();
                 let active = [...document.getElementsByName('filters')]
                     .filter(e => e.checked)
                     .map(e => e.value);
@@ -33,7 +33,7 @@
                     .sort((a, b) => (a.subject > b.subject ? 1 : -1))
                     .map(
                         e =>
-                            fields[e.subject] +
+                            Fields[e.subject] +
                             ' ' +
                             (e.id + '').padStart(3, '0') +
                             ' <button onclick=\'serve("' +
@@ -44,16 +44,15 @@
                     '<br />'
                 );
             }
-            function serve(unique) {
+            async function serve(unique) {
                 let predicate = e => e.unique === unique;
                 let exists = data.findIndex(predicate);
                 if (exists === -1) {
                     return;
                 }
                 data[exists].served = Date.now();
-                localStorage.setItem(name, JSON.stringify(data));
-                loadStorage();
-                show();
+                await putData();
+                await show();
             }
             setInterval(show, 5000);
         </script>

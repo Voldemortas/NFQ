@@ -50,7 +50,7 @@
             </div>
         </main>
         <script src="scripts/functions.js"></script>
-        <script src="scripts/Client.js.js"></script>
+        <script src="scripts/Client.js"></script>
         <script>
             document.getElementById('input').addEventListener('keyup', e => {
                 if (e.keyCode === 13) {
@@ -62,8 +62,8 @@
              * @type Client
              */
             let client = null;
-            loadStorage();
-            function submit() {
+            loadData(); //reikėtų uždėt pranešimą, kad loadina, bet kažin ar spėsiu
+            async function submit() {
                 let code = document.getElementById('code').value;
                 let user = data.findIndex(e => e.unique === code);
                 if (user === -1) {
@@ -75,11 +75,11 @@
                 document.getElementById('input').setAttribute('hidden', 'true');
                 // prettier-ignore
                 document.getElementById('user').innerHTML =
-                    `Jūsų eilės numeris: ${client.id} <br /> Užklausa: ${fields[client.subject]}`;
-                showContent();
+                    `Jūsų eilės numeris: ${client.id} <br /> Užklausa: ${Fields[client.subject]}`;
+                await showContent();
             }
-            function showContent() {
-                loadStorage();
+            async function showContent() {
+                await loadData();
                 if (client === null) {
                     return;
                 }
@@ -150,7 +150,7 @@
                     seconds.padStart(2, '0')
                 );
             }
-            function postpone() {
+            async function postpone() {
                 let filtered = data
                     .filter(e => e.subject === client.subject && e.served === 0)
                     .sort((a, b) => b.register - a.register);
@@ -171,18 +171,18 @@
                 let userId = data.findIndex(e => e.unique === client.unique);
                 data[userId].register = data[nextId].register;
                 data[nextId].register = time;
-                localStorage.setItem('clients', JSON.stringify(data));
+                putData();
                 document.getElementById('message').innerHTML =
                     'Laikas pavėlintas';
                 showContent();
             }
-            function cancel() {
+            async function cancel() {
                 if (!confirm('Ar tikrai norite atšaukti vizitą?')) {
                     return;
                 }
                 let userId = data.findIndex(e => e.unique === client.unique);
                 data[userId].served = -1;
-                localStorage.setItem('clients', JSON.stringify(data));
+                await putData();
                 document.getElementById('time').innerHTML = '';
             }
             setInterval(showContent, 5000);

@@ -48,7 +48,7 @@
                 document.getElementsByTagName('body')[0].style.cursor = 'auto';
             };
             function show() {
-                loadStorage();
+                loadData();
                 if (data.length === 0) {
                     document.getElementById('info').innerHTML =
                         'Nepavyko užkrauti duomenų';
@@ -57,7 +57,7 @@
                 let sorted = data
                     .filter(e => e.served === 0)
                     .sort((a, b) => a.register - b.register);
-                Object.keys(fields).forEach(key => {
+                Object.keys(Fields).forEach(key => {
                     let list = sorted
                         .filter(e => e.subject === key)
                         .map(
@@ -65,7 +65,7 @@
                                 `<div class="line">${(e.id + '').padStart(
                                     3,
                                     0
-                                )} ${fields[e.subject]}</div>`
+                                )} ${Fields[e.subject]}</div>`
                         );
                     list = list.length !== 0 ? list : ['&nbsp;'];
                     document.getElementById(key).innerHTML = list.join(' ');

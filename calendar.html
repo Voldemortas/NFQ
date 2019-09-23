@@ -77,20 +77,23 @@
         <script src="scripts/Client.js"></script>
         <script src="scripts/Day.js"></script>
         <script>
-            loadStorage();
             {
-                Object.keys(fields).forEach(key => {
+                Object.keys(Fields).forEach(key => {
                     document.getElementById(
                         'generatedFilters'
                     ).innerHTML += `<label><input type="checkbox" name="filter" checked value="${key}" onchange="func()" />
-                                        ${fields[key]}</label><br />`;
+                                        ${Fields[key]}</label><br />`;
                 });
             }
-            let filters = [...document.getElementsByName('filter')]
-                .filter(e => e.checked)
-                .map(e => e.value);
+            (async () => {
+                await loadData();
+                let filters = [...document.getElementsByName('filter')]
+                    .filter(e => e.checked)
+                    .map(e => e.value);
+                let selectedDay = {};
+                Calendar.makeTable(rightNow(), () => execute(), 'calendar');
+            })();
 
-            let selectedDay = {};
             function func() {
                 filters = [...document.getElementsByName('filter')]
                     .filter(e => e.checked)
@@ -160,7 +163,6 @@
                     now.getDate()
                 );
             }
-            Calendar.makeTable(rightNow(), () => execute(), 'calendar');
         </script>
     </body>
 </html>
