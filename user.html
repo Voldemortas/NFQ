@@ -118,13 +118,14 @@
                     return;
                 }
                 let served = filtered.filter(e => e.served > 0);
-                let unserved = filtered.filter(
-                    e => e.served === 0 && e.register <= client.register
-                );
+                let unserved = filtered
+                    .filter(
+                        e => e.served === 0 && e.register <= client.register
+                    )
+                    .sort((a, b) => a.register - b.register);
                 let average =
                     served.reduce((a, b) => a + b.served - b.register, 0) /
                     Math.max(served.length, 1);
-                console.log(average, unserved);
                 let waiting =
                     unserved.length * average +
                     Math.min(average - (Date.now() - unserved[0].register), 0);
@@ -160,7 +161,6 @@
                     //oh boy reikės daug kur taip padaryt :D
                     document.getElementById('postpone').innerHTML =
                         `Pavėlinti registracijos negalima`;
-                    return;
                 }
                 if (!confirm('Ar tikrai norite pavėlinti savo laiką?')) {
                     return;
