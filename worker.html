@@ -12,7 +12,9 @@
             document.getElementById('filters').innerHTML = Object.keys(fields)
                 .map(
                     e =>
-                        `<label>${fields[e]} <input type="checkbox" name="filters" value="${e}" onchange="show()" /></label>`
+                        `<label>${fields[e]}
+                            <input type="checkbox" name="filters" value="${e}" onchange="show()" />
+                         </label>`
                 )
                 .join(' ');
             function show() {
@@ -29,9 +31,9 @@
                             fields[e.subject] +
                             ' ' +
                             (e.id + '').padStart(3, '0') +
-                            " <button onclick='serve(" +
+                            ' <button onclick=\'serve("' +
                             e.unique +
-                            ")'>Aptarnauta</button>"
+                            '")\'>Aptarnauta</button>'
                     );
                 document.getElementById('clients').innerHTML = sorted.join(
                     '<br />'
