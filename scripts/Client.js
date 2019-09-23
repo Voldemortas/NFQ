@@ -1,14 +1,3 @@
-'use strict';
-/**
- * localStorage item pavadinimas
- */
-const name = 'clients';
-let storage = {};
-/**
- * @type {Client[]}
- */
-let data = [];
-
 /**
  * @property {number} id           id on screen
  * @property {string} subject      reason of visit
@@ -47,20 +36,5 @@ class Client {
         }
         //prevent same hash
         return answer + '_' + id;
-    }
-}
-
-const fields = {
-    registracija: 'Registracija',
-    isdavimas: 'Išdavimas',
-    pratesimas: 'Pratęsimas',
-    uzsakymas: 'Užsakymas',
-};
-function loadStorage() {
-    storage = localStorage.getItem(name);
-    if (storage != null) {
-        data = JSON.parse(storage).sort((a, b) => b.register - a.register);
-    } else {
-        data = [];
     }
 }
