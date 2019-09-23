@@ -34,11 +34,16 @@
                         e.checked = false;
                     }
                 });
+                if (subject === null) {
+                    document.getElementById('message').innerHTML =
+                        'Nepasirinkta į kur užregistruoti';
+                    return;
+                }
                 loadStorage();
                 let last = data
-                    .sort((a, b) => b.time - a.time)
+                    .sort((a, b) => b.register - a.register)
                     .map(e => e.id)[0];
-                last = last === 999 ? 0 : last + 1;
+                last = last === 999 || last === undefined ? 1 : last + 1;
                 data.push(new Client(last, subject, Date.now()));
                 localStorage.setItem('clients', JSON.stringify(data));
                 document.getElementById('message').innerHTML =
@@ -100,7 +105,14 @@
                  */
                 let json = await input.json();
                 data = json.map(
-                    e => new Client(e.id, e.subject, e.register, e.unique)
+                    e =>
+                        new Client(
+                            e.id,
+                            e.subject,
+                            e.register,
+                            e.unique,
+                            e.served
+                        )
                 );
                 localStorage.setItem('clients', JSON.stringify(data));
                 document.getElementById('message').innerHTML =
