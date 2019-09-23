@@ -51,6 +51,17 @@
                 if (client === null) {
                     return;
                 }
+                if (client.served > 0) {
+                    document.getElementById('message').innerHTML =
+                        'Jūs jau buvote aptarnautas';
+                    return;
+                }
+
+                if (client.served === -1) {
+                    document.getElementById('message').innerHTML =
+                        'Jūs vizitas buvo atšauktas';
+                    return;
+                }
                 let filtered = data
                     .filter(e => e.subject === client.subject)
                     .sort((a, b) => b.register - a.register);
@@ -63,7 +74,8 @@
                 } else {
                     // prettier-ignore
                     document.getElementById('postpone').innerHTML =
-                        `<button onclick="postpone()">Pavėlinti registraciją</button>`;
+                        `<button onclick="postpone()">Pavėlinti registraciją</button>
+                        <button onclick="cancel()">Atšaukti vizitą</button>`;
                 }
                 let current = filtered
                     .filter(e => e.served === 0)
@@ -73,7 +85,7 @@
                         'JŪSŲ LAIKAS EITI!';
                     return;
                 }
-                let served = filtered.filter(e => e.served !== 0);
+                let served = filtered.filter(e => e.served > 0);
                 let unserved = filtered.filter(
                     e => e.served === 0 && e.register <= client.register
                 );
@@ -118,6 +130,9 @@
                         `Pavėlinti registracijos negalima`;
                     return;
                 }
+                if (!confirm('Ar tikrai norite pavėlinti savo laiką?')) {
+                    return;
+                }
                 let time = client.register;
                 let next = filtered[user - 1];
                 let nextId = data.findIndex(e => e.unique === next.unique);
@@ -128,6 +143,15 @@
                 document.getElementById('message').innerHTML =
                     'Laikas pavėlintas';
                 showContent();
+            }
+            function cancel() {
+                if (!confirm('Ar tikrai norite atšaukti vizitą?')) {
+                    return;
+                }
+                let userId = data.findIndex(e => e.unique === client.unique);
+                data[userId].served = -1;
+                localStorage.setItem('clients', JSON.stringify(data));
+                document.getElementById('time').innerHTML = '';
             }
             setInterval(showContent, 5000);
         </script>

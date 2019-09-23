@@ -40,9 +40,7 @@
                     return;
                 }
                 loadStorage();
-                let last = data
-                    .sort((a, b) => b.register - a.register)
-                    .map(e => e.id)[0];
+                let last = data.sort((a, b) => b.id - a.id).map(e => e.id)[0];
                 last = last === 999 || last === undefined ? 1 : last + 1;
                 data.push(new Client(last, subject, Date.now()));
                 localStorage.setItem('clients', JSON.stringify(data));
@@ -73,15 +71,11 @@
                 loadStorage();
                 data.sort((a, b) => b.register - a.register);
                 document.getElementById('data').innerHTML =
-                    data.length == 0
+                    data.length === 0
                         ? `<tr><th>Duomenų nėra</th></tr>`
                         : `<tr><th>ID</th><th>Užklausa</th><th>Registracija</th><th>Aptarnauta</th></tr>` +
                           data
                               .map(
-                                  /**
-                                   *
-                                   * @type {Client}
-                                   */
                                   e =>
                                       `<tr><td>${e.id}</td><td>${
                                           fields[e.subject]
@@ -90,6 +84,8 @@
                                       )}</td><td>${
                                           e.served === 0
                                               ? 'NE'
+                                              : e.served === -1
+                                              ? 'Atšaukta'
                                               : formattedTime(
                                                     e.served + additional
                                                 )
