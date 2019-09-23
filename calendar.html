@@ -85,9 +85,10 @@
                                         ${Fields[key]}</label><br />`;
                 });
             }
+            let filters = [];
             (async () => {
                 await loadData();
-                let filters = [...document.getElementsByName('filter')]
+                filters = [...document.getElementsByName('filter')]
                     .filter(e => e.checked)
                     .map(e => e.value);
                 let selectedDay = {};
