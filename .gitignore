@@ -1,0 +1,5 @@
+#.gitignore
+.prettierrc.js
+prettier.sh
+.idea
+backend/node_modules
