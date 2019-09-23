@@ -38,7 +38,7 @@
                 text-align: center;
             }
 
-            @media only screen and (min-width: 400px) {
+            @media only screen and (min-width: 600px) {
                 aside {
                     width: 300px;
                     float: left;
@@ -82,13 +82,23 @@
                 Object.keys(fields).forEach(key => {
                     document.getElementById(
                         'generatedFilters'
-                    ).innerHTML += `<label><input type="checkbox" name="filter" checked value="${key}" onchange="wtf()" />
+                    ).innerHTML += `<label><input type="checkbox" name="filter" checked value="${key}" onchange="func()" />
                                         ${fields[key]}</label><br />`;
                 });
             }
+            let filters = [...document.getElementsByName('filter')]
+                .filter(e => e.checked)
+                .map(e => e.value);
+
             let selectedDay = {};
-            function wtf() {
-                let idk = [...document.getElementsByName('filter')]
+            function func() {
+                filters = [...document.getElementsByName('filter')]
+                    .filter(e => e.checked)
+                    .map(e => e.value);
+                Calendar.makeTable(selectedDay, () => execute(), 'calendar');
+            }
+            function execute() {
+                filters = [...document.getElementsByName('filter')]
                     .filter(e => e.checked)
                     .map(e => e.value);
                 let chosen = [...document.getElementsByClassName('selected')];
@@ -119,12 +129,18 @@
                         selectedDay.day,
                         e + 1
                     ).getTime();
-                    console.log(start, finish);
                     return data.filter(
-                        e => e.register > start && e.register <= finish
+                        e =>
+                            e.register > start &&
+                            e.register <= finish &&
+                            filters.includes(e.subject)
                     );
                 });
-                let cells = `<tr><td>Laikas</td><td>Klientai</td></tr>`;
+                let cells = `<tr><td colspan="2">${leadingZero(
+                    selectedDay.year
+                )}–${leadingZero(selectedDay.month + 1)}–${leadingZero(
+                    selectedDay.day
+                )}</td></tr><tr><td>Laikas</td><td>Klientai</td></tr>`;
                 for (let i = 0; i < workingHours.length; i++) {
                     cells += `<tr><td>${leadingZero(
                         workingHours[i]
@@ -144,7 +160,7 @@
                     now.getDate()
                 );
             }
-            Calendar.makeTable(rightNow(), () => wtf());
+            Calendar.makeTable(rightNow(), () => execute(), 'calendar');
         </script>
     </body>
 </html>

@@ -49,7 +49,20 @@ class Calendar {
         return new Calendar(day.year, day.month);
     }
 
+    /**
+     *
+     * @param {Day} selected
+     * @param {function} callback
+     * @param {string} divId
+     */
     static makeTable(selected = null, callback = () => {}, divId = 'calendar') {
+        let colors = number => {
+            number = Math.min(number, 15) * 16;
+            return 255 - (number === 0 ? 0 : number - 1);
+        };
+        if (filters === undefined) {
+            filters = [];
+        }
         if (selected === null) {
             selected = rightNow();
         }
@@ -88,7 +101,14 @@ class Calendar {
                             ? ' class="holiday selected"'
                             : ' class="holiday"';
                     } else {
-                        let usage = Math.floor(Math.random() * 16) * 16 - 1;
+                        let usage = colors(
+                            data.filter(
+                                e =>
+                                    e.register > realDay.boundaries()[0] &&
+                                    e.register < realDay.boundaries()[1] &&
+                                    filters.includes(e.subject)
+                            ).length
+                        );
                         style += realDay.equals(selected)
                             ? ` class="selected" style="background-color: rgb(255, ${usage}, ${usage})"`
                             : ` style="background-color: rgb(255, ${usage}, ${usage})"`;
