@@ -4,14 +4,73 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>Kalendorius</title>
         <style>
+            table {
+                margin-left: auto;
+                margin-right: auto;
+            }
             td {
                 text-align: center;
+                font-size: 18px;
+                padding: 5px;
+                border: 2px solid transparent;
+            }
+            td:hover {
+                cursor: pointer;
+            }
+            .selected {
+                border: 2px solid black;
+            }
+            .holiday {
+                color: red;
+            }
+            .grey {
+                color: grey;
+            }
+            aside {
+                width: 300px;
+                float: left;
+                text-align: center;
+            }
+            main {
+                width: calc(100% - 300px);
+                float: right;
             }
         </style>
     </head>
     <body>
-        <div id="calendar"></div>
+        <aside>
+            <span id="date">
+                <hr />
+                Pasirinkite datą
+                <hr />
+                <div id="calendar"></div>
+            </span>
+            <hr />
+            <span id="filters">
+                Pasirinkite filtrus
+                <hr />
+                <div
+                    style="text-align: left; margin-left: 10px"
+                    id="generatedFilters"
+                ></div>
+            </span>
+        </aside>
+        <main><br /></main>
+        <script src="scripts/init.js"></script>
         <script>
+            {
+                Object.keys(fields).forEach(key => {
+                    document.getElementById(
+                        'generatedFilters'
+                    ).innerHTML += `<label><input type="checkbox" name="filter" value="${key}" onchange="wtf()" /> ${fields[key]}</label><br />`;
+                });
+            }
+            function wtf() {
+                let idk = [...document.getElementsByName('filter')]
+                    .filter(e => e.checked)
+                    .map(e => e.value);
+                console.log(idk);
+            }
             /**
              * @property {number} year
              * @property {number} month
@@ -30,6 +89,31 @@
                     this.first = new Day(year, month, 1);
                     this.last = new Day(year, month + 1, 0);
                 }
+
+                /**
+                 * Ar diena yra Nedarbo diena
+                 * @param {Day} day
+                 * @return {boolean}
+                 */
+
+                static holidays(day) {
+                    return (
+                        day.weekday === 5 || //šeštadienis
+                        day.weekday === 6 || //sekmadienis
+                        (day.month === 0 && day.day === 1) || //sausio 1
+                        (day.month === 1 && day.day === 16) || //vasario 16
+                        (day.month === 2 && day.day === 11) || //kovo 11
+                        (day.month === 4 && day.day === 1) || //gegužės 1
+                        (day.month === 5 && day.day === 24) || //birželio 24
+                        (day.month === 6 && day.day === 6) || //liepos 6
+                        (day.month === 7 && day.day === 15) || //rugpjūčio 15
+                        (day.month === 10 && day.day === 1) || //lapkričio 1
+                        (day.month === 11 && day.day === 24) || //gruodžio 24
+                        (day.month === 11 && day.day === 25) || //gruodžio 25
+                        (day.month === 11 && day.day === 26) //gruodžio 26
+                    );
+                }
+
                 /**
                  * @param {Day} day
                  * @return {Calendar}
@@ -38,39 +122,58 @@
                     return new Calendar(day.year, day.month);
                 }
 
-                makeTable(divId = 'calendar') {
+                static makeTable(selected = null, divId = 'calendar') {
+                    if (selected === null) {
+                        selected = rightNow();
+                    }
+                    let month = Calendar.fromDay(selected);
                     let text = `<table>
                             <tr>
-                                <td colspan="7" id="year">${this.year}</td>
+                                <td colspan="7" id="year">${month.year}</td>
                             </tr>
                             <tr>
-                                <td><button onclick="previousMonth()"><</button></td>
+                                <td><button onclick='Calendar.makeTable(${JSON.stringify(
+                                    month.first.previous()
+                                )})'><</button></td>
                                 <td colspan="5" id="month">${
-                                    Calendar.monthNames[this.month]
+                                    Calendar.monthNames[month.month]
                                 }</td>
-                                <td><button onclick="nextMonth()">></button></td>
+                                <td><button onclick='Calendar.makeTable(${JSON.stringify(
+                                    month.last.next()
+                                )})'>></button></td>
                             </tr>`;
                     text += Calendar.dayNames.reduce(
                         (a, b) => `${a}<td>${b}</td>`,
                         '<tr>'
                     );
                     let temp = '';
-                    for (let i = 0; i < this.first.weekday; i++) {
-                        temp += '<td>&nbsp;</td>';
-                    }
-                    let day = 1;
-                    for (let i = this.first.weekday; i < 7; i++) {
-                        temp += `<td>${day++}</td>`;
-                    }
-                    text += `</tr><tr>${temp}</tr>`;
-                    while (day <= this.last.day) {
+                    let day = -month.first.weekday + 1;
+                    text += `</tr>`;
+                    while (day <= month.last.day) {
                         temp = '';
                         for (let i = 0; i < 7; i++) {
-                            if (day <= this.last.day) {
-                                temp += `<td>${day++}</td>`;
+                            let style = '';
+                            let realDay = new Day(month.year, month.month, day);
+                            if (day <= month.last.day && day > 0) {
+                                if (Calendar.holidays(realDay)) {
+                                    style += realDay.equals(selected)
+                                        ? ' class="holiday selected"'
+                                        : ' class="holiday"';
+                                } else {
+                                    let usage =
+                                        Math.floor(Math.random() * 16) * 16 - 1;
+                                    style += realDay.equals(selected)
+                                        ? ` class="selected" style="background-color: rgb(255, ${usage}, ${usage})"`
+                                        : ` style="background-color: rgb(255, ${usage}, ${usage})"`;
+                                }
+
+                                temp += `<td${style} onclick='Calendar.makeTable(${JSON.stringify(
+                                    realDay
+                                )})'>${day}</td>`;
                             } else {
                                 temp += `<td>&nbsp;</td>`;
                             }
+                            day++;
                         }
                         text += `<tr>${temp}</tr>`;
                     }
@@ -98,7 +201,7 @@
                  * Savaitės dienų sutrumpinimai
                  * @type {string[]}
                  */
-                static dayNames = ['Pr', 'At', 'Tr', 'Kt', 'Pe', 'Št', 'Sk'];
+                static dayNames = ['Pr', 'An', 'Tr', 'Kt', 'Pn', 'Št', 'Sk'];
                 /**
                  * Savaitės dienų pavadinimai
                  * @type {string[]}
@@ -148,6 +251,19 @@
                 next() {
                     return new Day(this.year, this.month, this.day + 1);
                 }
+
+                /**
+                 * patikrina ar sutampa dienos
+                 * @param {Day} day
+                 * @returns {boolean}
+                 */
+                equals(day) {
+                    return (
+                        day.year === this.year &&
+                        day.month === this.month &&
+                        day.day === this.day
+                    );
+                }
             }
             /**
              *
@@ -161,20 +277,7 @@
                     now.getDate()
                 );
             }
-            function nextMonth() {
-                thisMonth = Calendar.fromDay(
-                    new Day(thisMonth.year, thisMonth.month + 1, 1)
-                );
-                thisMonth.makeTable();
-            }
-            function previousMonth() {
-                thisMonth = Calendar.fromDay(
-                    new Day(thisMonth.year, thisMonth.month, 0)
-                );
-                thisMonth.makeTable();
-            }
-            let thisMonth = Calendar.fromDay(rightNow());
-            thisMonth.makeTable();
+            Calendar.makeTable();
         </script>
     </body>
 </html>
