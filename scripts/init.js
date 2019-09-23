@@ -29,28 +29,24 @@ class Client {
         this.id = id;
         this.subject = subject;
         this.register = register;
-        this.unique = unique !== '' ? unique : Client.generate();
+        this.unique = unique !== '' ? unique : this.generate(id);
         this.served = served;
     }
 
     /**
      *
-     * @param {Client[]} clients
+     * @param {number} id
      * @param {number} size
      * @returns {string} unique hash for user
      */
-    static generate(clients = [], size = 5) {
+    generate(id, size = 5) {
         let string = 'abcdefghijklmnoqrstuvwxyz0123456789';
         let answer = '';
         for (let i = 0; i < size; i++) {
             answer += string[Math.floor(Math.random() * string.length)];
         }
         //prevent same hash
-        if (clients.filter(e => e.unique === answer).length !== 0) {
-            return this.generate(clients, size);
-        } else {
-            return answer;
-        }
+        return answer + '_' + id;
     }
 }
 
@@ -63,7 +59,7 @@ const fields = {
 function loadStorage() {
     storage = localStorage.getItem(name);
     if (storage != null) {
-        data = JSON.parse(storage).sort((a, b) => b.time - a.time);
+        data = JSON.parse(storage).sort((a, b) => b.register - a.register);
     } else {
         data = [];
     }
