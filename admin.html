@@ -12,7 +12,10 @@
         <div id="filters"></div>
         <hr />
         <div>
-            <button onclick="load().catch(wrong)">Užkrauti duomenis</button>
+            <button onclick="load().catch(wrong)">Užkrauti iš failo</button>
+            <button onclick="loadData().then(update())">
+                Užkrauti iš serverio
+            </button>
             <button onclick="remove()">Ištrinti duomenis</button>
             <div id="message"></div>
             <div>
@@ -21,17 +24,17 @@
             </div>
         </div>
         <script src="scripts/functions.js"></script>
-        <script src="scripts/Client.js.js"></script>
+        <script src="scripts/Client.js"></script>
         <script>
-            Object.keys(fields).forEach(key => {
+            Object.keys(Fields).forEach(key => {
                 document.getElementById(
                     'filters'
-                ).innerHTML += `<label><input type="radio" name="filter" value="${key}" /> ${fields[key]}</label><br />`;
+                ).innerHTML += `<label><input type="radio" name="filter" value="${key}" /> ${Fields[key]}</label><br />`;
             });
             document.getElementById(
                 'filters'
             ).innerHTML += `<button onclick="submit()">Registruoti klientą</button>`;
-            function submit() {
+            async function submit() {
                 let subject = null;
                 document.getElementsByName('filter').forEach(e => {
                     if (e.checked) {
@@ -44,11 +47,11 @@
                         'Nepasirinkta į kur užregistruoti';
                     return;
                 }
-                loadStorage();
+                await loadData();
                 let last = data.sort((a, b) => b.id - a.id).map(e => e.id)[0];
                 last = last === 999 || last === undefined ? 1 : last + 1;
                 data.push(new Client(last, subject, Date.now()));
-                localStorage.setItem('clients', JSON.stringify(data));
+                await putData();
                 document.getElementById('message').innerHTML =
                     'Užregistruota sėkmingai';
                 update();
@@ -71,10 +74,9 @@
                     .split('T')
                     .join('<br />');
             }
-            function update() {
+            async function update() {
                 let additional = timezone();
-                loadStorage();
-                data.sort((a, b) => b.register - a.register);
+                await loadData();
                 document.getElementById('data').innerHTML =
                     data.length === 0
                         ? `<tr><th>Duomenų nėra</th></tr>`
@@ -83,7 +85,7 @@
                               .map(
                                   e =>
                                       `<tr><td>${e.id}</td><td>${
-                                          fields[e.subject]
+                                          Fields[e.subject]
                                       }</td><td>${formattedTime(
                                           e.register + additional
                                       )}</td><td>${
@@ -100,36 +102,22 @@
             }
             async function load() {
                 let input = await fetch('backend/clients.json');
-                /**
-                 *
-                 * @type {Client[]}
-                 */
-                let json = await input.json();
-                data = json.map(
-                    e =>
-                        new Client(
-                            e.id,
-                            e.subject,
-                            e.register,
-                            e.unique,
-                            e.served
-                        )
-                );
-                localStorage.setItem('clients', JSON.stringify(data));
+                data = await input.json();
+                putData();
                 document.getElementById('message').innerHTML =
                     'Duomenys sėkmingai užkrauti';
-                update();
+                await update();
             }
-            function wrong() {
+            async function wrong() {
                 document.getElementById('message').innerHTML =
                     'Nepavyko nuskaityti lankytojų duomenų';
-                update();
+                await update();
             }
-            function remove() {
-                localStorage.removeItem(name);
+            async function remove() {
+                await deleteData();
                 document.getElementById('message').innerHTML =
                     'Duomenys sėkmingai ištrinti';
-                update();
+                await update();
             }
             update();
         </script>

@@ -45,9 +45,13 @@ const UseLocal = true;
  */
 async function loadData() {
     if (UseLocal) {
-        let storage = localStorage.getItem(Name);
+        let storage = localStorage;
         if (storage != null) {
-            data = JSON.parse(storage).sort((a, b) => b.register - a.register);
+            data = JSON.parse(localStorage.getItem(Name));
+            data =
+                data === null
+                    ? []
+                    : data.sort((a, b) => b.register - a.register);
         } else {
             throw new Error('No localStorage');
         }
@@ -67,7 +71,7 @@ async function loadData() {
  */
 async function putData() {
     if (UseLocal) {
-        let storage = localStorage.getItem(Name);
+        let storage = localStorage;
         if (storage != null) {
             localStorage.setItem(Name, JSON.stringify(data));
             return true;
@@ -89,5 +93,38 @@ async function putData() {
             Object.keys(json).includes('success') &&
             json.success
         );
+    }
+}
+
+async function deleteData() {
+    if (UseLocal) {
+        let storage = localStorage;
+        if (storage != null) {
+            localStorage.removeItem(Name);
+            data = [];
+            return true;
+        } else {
+            throw new Error('No localStorage');
+        }
+    } else {
+        let output = await fetch(Url + '/deleteData', {
+            method: 'DELETE',
+            body: JSON.stringify({ key: 'clients' }),
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        let json = await output.json();
+        if (
+            json.success !== undefined &&
+            Object.keys(json).includes('success') &&
+            json.success
+        ) {
+            data = [];
+            return true;
+        } else {
+            return false;
+        }
     }
 }
