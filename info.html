@@ -1,7 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="lt">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
         <title>Švieslentė</title>
         <style>
             html,
@@ -44,7 +48,7 @@
             };
             function show() {
                 loadStorage();
-                if (data.length == 0) {
+                if (data.length === 0) {
                     document.getElementById('info').innerHTML =
                         'Nepavyko užkrauti duomenų';
                     return;
@@ -62,7 +66,7 @@
                                     0
                                 )} ${fields[e.subject]}</div>`
                         );
-                    list = list.length != 0 ? list : ['&nbsp;'];
+                    list = list.length !== 0 ? list : ['&nbsp;'];
                     document.getElementById(key).innerHTML = list.join(' ');
                 });
             }
