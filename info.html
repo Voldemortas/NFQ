@@ -49,7 +49,9 @@
                         'Nepavyko užkrauti duomenų';
                     return;
                 }
-                let sorted = data.sort((a, b) => b.register - a.register);
+                let sorted = data
+                    .filter(e => e.served === 0)
+                    .sort((a, b) => a.register - b.register);
                 Object.keys(fields).forEach(key => {
                     let list = sorted
                         .filter(e => e.subject === key)

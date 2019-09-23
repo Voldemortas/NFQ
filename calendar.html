@@ -2,6 +2,11 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
+
         <title>Kalendorius</title>
         <style>
             table {
@@ -14,10 +19,10 @@
                 padding: 5px;
                 border: 2px solid transparent;
             }
-            td:hover {
+            #calendar td:hover {
                 cursor: pointer;
             }
-            .selected {
+            #calendar .selected {
                 border: 2px solid black;
             }
             .holiday {
@@ -27,13 +32,22 @@
                 color: grey;
             }
             aside {
-                width: 300px;
-                float: left;
                 text-align: center;
             }
             main {
-                width: calc(100% - 300px);
-                float: right;
+                text-align: center;
+            }
+
+            @media only screen and (min-width: 400px) {
+                aside {
+                    width: 300px;
+                    float: left;
+                    text-align: center;
+                }
+                main {
+                    width: calc(100% - 320px);
+                    float: right;
+                }
             }
         </style>
     </head>
@@ -44,6 +58,7 @@
                 Pasirinkite datą
                 <hr />
                 <div id="calendar"></div>
+                <i>*Raudonumas indikuoja užimtumą</i>
             </span>
             <hr />
             <span id="filters">
@@ -54,22 +69,69 @@
                     id="generatedFilters"
                 ></div>
             </span>
+            <hr />
         </aside>
-        <main><br /></main>
+        <main id="mainContent"><hr /></main>
         <script src="scripts/init.js"></script>
         <script>
+            loadStorage();
             {
                 Object.keys(fields).forEach(key => {
                     document.getElementById(
                         'generatedFilters'
-                    ).innerHTML += `<label><input type="checkbox" name="filter" value="${key}" onchange="wtf()" /> ${fields[key]}</label><br />`;
+                    ).innerHTML += `<label><input type="checkbox" name="filter" checked value="${key}" onchange="wtf()" />
+                                        ${fields[key]}</label><br />`;
                 });
             }
+            let selectedDay = {};
             function wtf() {
                 let idk = [...document.getElementsByName('filter')]
                     .filter(e => e.checked)
                     .map(e => e.value);
-                console.log(idk);
+                let chosen = [...document.getElementsByClassName('selected')];
+                if (chosen.length === 0) {
+                    selectedDay = rightNow();
+                } else {
+                    chosen = JSON.parse(chosen[0].dataset.day);
+                    selectedDay = new Day(
+                        chosen.year,
+                        chosen.month,
+                        chosen.day
+                    );
+                }
+                let workingHours = [8, 9, 10, 11, 12, 14, 15, 16];
+                function leadingZero(number) {
+                    return (number + '').padStart(2, 0);
+                }
+                let clients = workingHours.map(e => {
+                    let start = new Date(
+                        selectedDay.year,
+                        selectedDay.month,
+                        selectedDay.day,
+                        e
+                    ).getTime();
+                    let finish = new Date(
+                        selectedDay.year,
+                        selectedDay.month,
+                        selectedDay.day,
+                        e + 1
+                    ).getTime();
+                    console.log(start, finish);
+                    return data.filter(
+                        e => e.register > start && e.register <= finish
+                    );
+                });
+                let cells = `<tr><td>Laikas</td><td>Klientai</td></tr>`;
+                for (let i = 0; i < workingHours.length; i++) {
+                    cells += `<tr><td>${leadingZero(
+                        workingHours[i]
+                    )}:00 ${leadingZero(workingHours[i] + 1)}:00</td><td>${
+                        clients[i].length
+                    }</td></tr>`;
+                }
+                document.getElementById(
+                    'mainContent'
+                ).innerHTML = `<table width="100%" border="1">${cells}</table>`;
             }
             /**
              * @property {number} year
@@ -122,7 +184,11 @@
                     return new Calendar(day.year, day.month);
                 }
 
-                static makeTable(selected = null, divId = 'calendar') {
+                static makeTable(
+                    selected = null,
+                    callback = () => {},
+                    divId = 'calendar'
+                ) {
                     if (selected === null) {
                         selected = rightNow();
                     }
@@ -155,6 +221,12 @@
                             let style = '';
                             let realDay = new Day(month.year, month.month, day);
                             if (day <= month.last.day && day > 0) {
+                                let date_tag = ``;
+                                if (realDay.equals(selected)) {
+                                    date_tag = ` data-day='${JSON.stringify(
+                                        realDay
+                                    )}'`;
+                                }
                                 if (Calendar.holidays(realDay)) {
                                     style += realDay.equals(selected)
                                         ? ' class="holiday selected"'
@@ -167,9 +239,9 @@
                                         : ` style="background-color: rgb(255, ${usage}, ${usage})"`;
                                 }
 
-                                temp += `<td${style} onclick='Calendar.makeTable(${JSON.stringify(
+                                temp += `<td${style}${date_tag} onclick='Calendar.makeTable(${JSON.stringify(
                                     realDay
-                                )})'>${day}</td>`;
+                                )}, ${callback})'>${day}</td>`;
                             } else {
                                 temp += `<td>&nbsp;</td>`;
                             }
@@ -177,7 +249,9 @@
                         }
                         text += `<tr>${temp}</tr>`;
                     }
+
                     document.getElementById(divId).innerHTML = text;
+                    callback();
                 }
                 /**
                  * Mėnesio pavadinimai
@@ -264,6 +338,17 @@
                         day.day === this.day
                     );
                 }
+
+                /**
+                 * boundaries of working hours
+                 * @returns {[number, number]}
+                 */
+                boundaries() {
+                    return [
+                        new Date(this.year, this.month, this.day, 8).getTime(),
+                        new Date(this.year, this.month, this.day, 17).getTime(),
+                    ];
+                }
             }
             /**
              *
@@ -277,7 +362,7 @@
                     now.getDate()
                 );
             }
-            Calendar.makeTable();
+            Calendar.makeTable(rightNow(), () => wtf());
         </script>
     </body>
 </html>
