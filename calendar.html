@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Kalendorius</title>
+        <style>
+            td {
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="calendar"></div>
+        <script>
+            /**
+             * @property {number} year
+             * @property {number} month
+             * @property {Day} first – pirma mėnesio diena
+             * @property {Day} last – paskutinė mėnesio diena
+             */
+            class Calendar {
+                /**
+                 * @constructor
+                 * @param {number} year
+                 * @param {number} month
+                 */
+                constructor(year, month) {
+                    this.year = year;
+                    this.month = month;
+                    this.first = new Day(year, month, 1);
+                    this.last = new Day(year, month + 1, 0);
+                }
+                /**
+                 * @param {Day} day
+                 * @return {Calendar}
+                 */
+                static fromDay(day) {
+                    return new Calendar(day.year, day.month);
+                }
+
+                makeTable() {
+                    let text = `<table>
+                            <tr>
+                                <td colspan="7" id="year">${this.year}</td>
+                            </tr>
+                            <tr>
+                                <td><</td>
+                                <td colspan="5" id="month">${
+                                    Calendar.monthNames[this.month]
+                                }</td>
+                                <td>></td>
+                            </tr>`;
+                    text += Calendar.dayNames.reduce(
+                        (a, b) => `${a}<td>${b}</td>`,
+                        '<tr>'
+                    );
+                    let temp = '';
+                    for (let i = 0; i < this.first.weekday; i++) {
+                        temp += '<td>&nbsp;</td>';
+                    }
+                    let day = 1;
+                    for (let i = this.first.weekday; i < 7; i++) {
+                        temp += `<td>${day++}</td>`;
+                    }
+                    text += `</tr><tr>${temp}</tr>`;
+                    while (day <= this.last.day) {
+                        temp = '';
+                        for (let i = 0; i < 7; i++) {
+                            if (day <= this.last.day) {
+                                temp += `<td>${day++}</td>`;
+                            } else {
+                                temp += `<td>&nbsp;</td>`;
+                            }
+                        }
+                        text += `<tr>${temp}</tr>`;
+                    }
+                    return text;
+                }
+                /**
+                 * Mėnesio pavadinimai
+                 * @type {string[]}
+                 */
+                static monthNames = [
+                    'Sausis',
+                    'Vasaris',
+                    'Kovas',
+                    'Balandis',
+                    'Gegužė',
+                    'Birželis',
+                    'Liepa',
+                    'Rugpjūtis',
+                    'Rugsėjis',
+                    'Spalis',
+                    'Lapkritis',
+                    'Gruodis',
+                ];
+                /**
+                 * Savaitės dienų sutrumpinimai
+                 * @type {string[]}
+                 */
+                static dayNames = ['Pr', 'At', 'Tr', 'Kt', 'Pe', 'Št', 'Sk'];
+                /**
+                 * Savaitės dienų pavadinimai
+                 * @type {string[]}
+                 */
+                static weekDays = [
+                    'Pirmadienis',
+                    'Antradienis',
+                    'Trečiadienis',
+                    'Ketvirtadienis',
+                    'Penktadienis',
+                    'Šeštadienis',
+                    'Sekmadienis',
+                ];
+            }
+
+            /**
+             * @property {number} year
+             * @property {number} month
+             * @property {number} day
+             * @property {number} weekday
+             */
+            class Day {
+                /**
+                 * @constructor
+                 * @param {number} year
+                 * @param {number} month
+                 * @param {number} day
+                 */
+                constructor(year, month, day) {
+                    let date = new Date(year, month, day);
+                    this.year = date.getFullYear();
+                    this.month = date.getMonth();
+                    this.day = date.getDate();
+                    this.weekday = (date.getDay() + 6) % 7; //tebūnie pirmadienis 0 diena
+                }
+                /**
+                 * Ankstesnė diena
+                 * @returns {Day}
+                 */
+                previous() {
+                    return new Day(this.year, this.month, this.day - 1);
+                }
+                /**
+                 * Paskesnė diena
+                 * @returns {Day}
+                 */
+                next() {
+                    return new Day(this.year, this.month, this.day + 1);
+                }
+            }
+            /**
+             *
+             * @returns {Day}
+             */
+            function rightNow() {
+                let now = new Date(Date.now());
+                return new Day(
+                    now.getFullYear(),
+                    now.getMonth(),
+                    now.getDate()
+                );
+            }
+            let thisMonth = Calendar.fromDay(rightNow());
+            document.getElementById(
+                'calendar'
+            ).innerHTML = thisMonth.makeTable();
+        </script>
+    </body>
+</html>
